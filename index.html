@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alimenta Tu Lobo - App Web</title>
+    <!-- Meta tags PWA para instalación móvil -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#072133">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AlimentaTuLobo">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Paleta Oficial de Colores del Mural */
+            --azul-profundo: #0D3B59;
+            --azul-turquesa: #2A9D8F;
+            --azul-claro: #48CAE4;
+            --rojo-coral: #E76F51;
+            --blanco-estelar: #FFFFFF;
+
+            /* Asignación de Roles en la Interfaz */
+            --bg-color: #072133;
+            --dark-panel: var(--azul-profundo);
+            --nav-bg: #051826;
+            --text-main: var(--blanco-estelar);
+            --text-muted: var(--azul-claro);
+            --turquoise: var(--azul-turquesa);
+            --coral: var(--rojo-coral);
+            --gold: var(--azul-claro);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #030e17;
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden; 
+            margin: 0;
+        }
+
+        /* Contenedor Principal del Marco Móvil */
+        .app-frame {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            height: 100dvh;
+            max-height: 100vh;
+            max-height: 100dvh;
+            position: relative;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid rgba(72, 202, 228, 0.2);
+            border-right: 1px solid rgba(72, 202, 228, 0.2);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Área de Contenido Desplazable */
+        .app-main {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Fondo del Mural dentro de la Pantalla de la App */
+        .mural-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 25%, #0F496F 0%, #0D3B59 65%, #051624 100%);
+        }
+
+        .mural-svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        @keyframes pulseStar {
+            0%, 100% { opacity: 0.35; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        .star-dot {
+            animation: pulseStar 3s ease-in-out infinite alternate;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            padding: 15px;
+            padding-bottom: 20px; 
+            box-sizing: border-box;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            z-index: 5;
+            background: transparent !important;
+            min-height: 100%;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            margin-top: 5px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            letter-spacing: 2px;
+            color: #FFFFFF;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        /* Banner de Instalación PWA */
+        .pwa-install-banner {
+            background: rgba(13, 59, 89, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #48CAE4;
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin: 10px auto;
+            max-width: 95%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            z-index: 100;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .pwa-install-btn {
+            background: linear-gradient(135deg, #2A9D8F, #48CAE4);
+            color: #051826;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(42, 157, 143, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .pwa-install-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Banner de Saludo Personalizado Dinámico */
+        .greeting-banner {
+            background: rgba(13, 59, 89, 0.65);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(72, 202, 228, 0.35);
+            border-radius: 20px;
+            padding: 7px 14px;
+            margin: 8px auto 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            max-width: 95%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .greeting-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: #48CAE4;
+            letter-spacing: 0.3px;
+        }
+
+        .greeting-text.birthday {
+            color: #FFE066;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(255, 224, 102, 0.5);
+        }
+
+        .greeting-icon {
+            font-size: 15px;
+        }
+
+        .date-container {
+            background: rgba(13, 59, 89, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(72, 202, 228, 0.3);
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 5;
+        }
+
+        .date-container label {
+            font-size: 14px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .date-input::-webkit-calendar-picker-indicator {
+            filter: invert(0.8) sepia(1) saturate(5) hue-rotate(140deg);
+            cursor: pointer;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-grow: 1;
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+            min-height: 220px;
+        }
+
+        .wolf-btn {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 15px;
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            transition: transform 0.1s, box-shadow 0.2s;
+            flex: 1;
+            min-height: 100px;
+        }
+
+        /* Marca de Agua Recortada GIGANTE en el Fondo del Botón */
+        .btn-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 580px;
+            height: 580px;
+            min-width: 580px;
+            min-height: 580px;
+            opacity: 0.35;
+            pointer-events: none;
+            z-index: 1;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .wolf-btn:hover .btn-watermark {
+            opacity: 0.45;
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        .wolf-btn-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wolf-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Lobo Blanco: Azul Turquesa + Azul Claro */
+        .btn-blanco {
+            background: linear-gradient(135deg, rgba(42, 157, 143, 0.9), rgba(72, 202, 228, 0.95));
+            color: #FFFFFF;
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 10px 25px rgba(42, 157, 143, 0.4);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Lobo Negro: Rojo Coral + Azul Profundo */
+        .btn-negro {
+            background: linear-gradient(135deg, rgba(231, 111, 81, 0.9), rgba(13, 59, 89, 0.95));
+            color: #FFFFFF;
+            border: 2px solid #E76F51;
+            box-shadow: 0 10px 25px rgba(231, 111, 81, 0.4);
+            backdrop-filter: blur(5px);
+        }
+
+        .icon-svg {
+            fill: currentColor;
+            width: 1em;
+            height: 1em;
+            display: inline-block;
+            vertical-align: -0.125em;
+        }
+        
+        .icon-svg-stroke {
+            fill: none;
+            stroke: currentColor;
+            width: 1em;
+            height: 1em;
+            display: inline-block;
+            vertical-align: -0.125em;
+        }
+
+        .wolf-btn .icon-svg, .wolf-btn .icon-svg-stroke {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .btn-blanco .icon-svg-stroke { color: #FFFFFF; }
+        .btn-negro .icon-svg-stroke { color: #FFFFFF; }
+        .nav-item .icon-svg { font-size: 22px; }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .dashboard-header h2 {
+            font-size: 30px;
+            letter-spacing: 2px;
+            color: #FFFFFF;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .dashboard-header p {
+            color: #FFFFFF;
+            font-size: 14px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .chart-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .donut-chart {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: conic-gradient(#2A9D8F 0% 50%, #E76F51 50% 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(42, 157, 143, 0.3);
+            transition: background 0.5s ease-out;
+        }
+
+        .donut-inner {
+            width: 180px;
+            height: 180px;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .donut-percentage {
+            font-family: 'Cinzel', serif;
+            font-size: 44px;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        .donut-label {
+            font-size: 12px;
+            color: var(--turquoise);
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stats-legend {
+            background: rgba(13, 59, 89, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid rgba(72, 202, 228, 0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 5;
+        }
+
+        .legend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .legend-item:last-child { border-bottom: none; }
+
+        .legend-label { display: flex; align-items: center; gap: 10px; font-size: 15px;}
+        .color-dot { width: 14px; height: 14px; border-radius: 4px; }
+        .dot-blanco { background-color: #2A9D8F; }
+        .dot-negro { background-color: #E76F51; }
+        .legend-value { font-weight: 600; font-size: 17px; font-family: 'Cinzel', serif; color: var(--text-main);}
+
+        /* Marca de Agua Geometría Sagrada Vesica Piscis */
+        .vesica-piscis-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .vesica-piscis-svg {
+            width: 200px;
+            height: 120px;
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.2));
+            opacity: 0.35;
+        }
+
+        /* Barra de Navegación Inferior Fija e Inamovible */
+        .bottom-nav {
+            height: 65px;
+            min-height: 65px;
+            width: 100%;
+            background-color: #051826;
+            border-top: 1px solid rgba(72, 202, 228, 0.3);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: relative;
+            z-index: 100;
+            flex-shrink: 0;
+            box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.8);
+        }
+
+        .nav-item {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 12px;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: color 0.3s;
+            width: 50%;
+            height: 100%;
+        }
+
+        .nav-item.active { color: var(--turquoise); }
+
+        #toast {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(42, 157, 143, 0.95);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, bottom 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #toast.show {
+            opacity: 1;
+            visibility: visible;
+            bottom: 95px;
+        }
+
+        /* Optimización Responsive para Celulares y Pantallas Pequeñas */
+        @media (max-height: 740px) {
+            .header { margin-bottom: 10px; margin-top: 5px; }
+            .header h1 { font-size: 24px; }
+            .date-container { padding: 8px 12px; margin-bottom: 10px; }
+            #daysCounterMain { margin-bottom: 10px; font-size: 14px; }
+            .buttons-container { gap: 10px; min-height: 180px; }
+            .wolf-btn { padding: 12px 10px; min-height: 85px; font-size: 19px; }
+            .wolf-btn .icon-svg, .wolf-btn .icon-svg-stroke { font-size: 28px; margin-bottom: 5px; }
+            .dashboard-header { margin-bottom: 15px; }
+            .dashboard-header h2 { font-size: 24px; }
+            .chart-wrapper { margin-bottom: 15px; }
+            .donut-chart { width: 190px; height: 190px; }
+            .donut-inner { width: 140px; height: 140px; }
+            .donut-percentage { font-size: 36px; }
+            .stats-legend { padding: 12px; }
+            .vesica-piscis-container { margin-top: 10px; margin-bottom: 5px; }
+            .vesica-piscis-svg { width: 150px; height: 90px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MARCO PRINCIPAL DE LA APP -->
+    <div class="app-frame">
+
+        <!-- Fondo del Mural dentro de la Pantalla de la App -->
+        <div class="mural-bg">
+            <svg class="mural-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="gradTurquoise" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#2A9D8F" stop-opacity="0.5" />
+                        <stop offset="100%" stop-color="#48CAE4" stop-opacity="0.15" />
+                    </linearGradient>
+                    <linearGradient id="gradBlue" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#48CAE4" stop-opacity="0.4" />
+                        <stop offset="100%" stop-color="#0D3B59" stop-opacity="0.0" />
+                    </linearGradient>
+                    <linearGradient id="gradCoral" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#E76F51" stop-opacity="0.25" />
+                        <stop offset="100%" stop-color="#E76F51" stop-opacity="0.0" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Tiras de colores fluidas inspiradas en el mural -->
+                <path d="M-100,-50 Q300,250 1100,50 L1100,-50 Z" fill="url(#gradTurquoise)" />
+                <path d="M-50,380 C300,150 600,600 1050,200 L1050,320 C600,720 300,270 -50,500 Z" fill="url(#gradBlue)" />
+                
+                <!-- Ondas y listones en S (Turquesa, Azul Claro y Coral) -->
+                <path d="M-100,680 C250,480 500,880 1100,580" fill="none" stroke="#2A9D8F" stroke-width="18" stroke-linecap="round" opacity="0.4" />
+                <path d="M-100,680 C250,480 500,880 1100,580" fill="none" stroke="#48CAE4" stroke-width="7" stroke-linecap="round" opacity="0.5" />
+                <path d="M150,-20 C450,350 750,150 1100,450" fill="none" stroke="#E76F51" stroke-width="6" stroke-linecap="round" opacity="0.3" />
+
+                <!-- Formas orgánicas de hojas/ramajes en la zona inferior -->
+                <path d="M-20,780 C80,720 180,820 150,950 C100,900 30,880 -20,920 Z" fill="#2A9D8F" opacity="0.35" />
+                <path d="M20,860 C120,820 220,900 180,1020 C130,960 70,950 20,980 Z" fill="#48CAE4" opacity="0.25" />
+                <path d="M-50,850 Q400,650 1050,900 L1050,1050 L-50,1050 Z" fill="url(#gradTurquoise)" />
+
+                <!-- Puntos de Luz / Luciérnagas Doradas del Mural (Titilantes) -->
+                <circle class="star-dot" cx="180" cy="180" r="5" fill="#FFE066" style="animation-delay: 0s;" />
+                <circle class="star-dot" cx="420" cy="120" r="4" fill="#FFFFFF" style="animation-delay: 0.7s;" />
+                <circle class="star-dot" cx="780" cy="200" r="6" fill="#FFE066" style="animation-delay: 1.4s;" />
+                <circle class="star-dot" cx="880" cy="350" r="4" fill="#48CAE4" style="animation-delay: 0.3s;" />
+                <circle class="star-dot" cx="260" cy="580" r="5" fill="#FFE066" style="animation-delay: 1.1s;" />
+                <circle class="star-dot" cx="680" cy="700" r="4.5" fill="#FFFFFF" style="animation-delay: 1.8s;" />
+                <circle class="star-dot" cx="120" cy="420" r="3.5" fill="#FFE066" style="animation-delay: 0.5s;" />
+                <circle class="star-dot" cx="920" cy="620" r="5" fill="#FFE066" style="animation-delay: 1.6s;" />
+            </svg>
+        </div>
+
+        <!-- ÁREA PRINCIPAL CON DESPLAZAMIENTO VIRTUAL -->
+        <main class="app-main">
+
+            <!-- Pestaña de Registro -->
+            <div id="tab-registro" class="tab-content active">
+                <div class="header">
+                    <h1>Alimenta Tu Lobo</h1>
+                                    
+                    <!-- Banner Interactivo de Instalación PWA -->
+                    <div id="pwaNoticeBanner" class="pwa-install-banner">
+                        <span id="pwaBannerText" style="font-size: 12px; color: #48CAE4;">📲 <strong>Instalar App:</strong> Guarda Alimenta Tu Lobo en tu celular</span>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <button id="pwaInstallBtn" class="pwa-install-btn" onclick="instalarPwa()" style="display: none;">Instalar</button>
+                            <button onclick="cerrarPwaNotice()" style="background: rgba(255,255,255,0.15); border: none; color: #fff; border-radius: 50%; width: 22px; height: 22px; font-weight: bold; cursor: pointer; line-height: 1;">✕</button>
+                        </div>
+                    </div>
+
+
+                    <div id="greetingBanner" class="greeting-banner">
+                        <span class="greeting-icon">✨</span>
+                        <span id="greetingText" class="greeting-text"></span>
+                    </div>
+                </div>
+
+                <div class="date-container">
+                    <label for="fechaRegistro">
+                        <svg class="icon-svg" viewBox="0 0 448 512"><path d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H64C28.7 64 0 92.7 0 128v16 48V448c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V192 144 128c0-35.3-28.7-64-64-64H344V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H152V24zM48 192H400V448c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192z"/></svg>
+                        Fecha:
+                    </label>
+                    <input type="date" id="fechaRegistro" class="date-input">
+                </div>
+
+                <div id="daysCounterMain" style="text-align: center; margin-bottom: 20px; font-family: 'Cinzel', serif; color: var(--coral); font-size: 16px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                    <svg class="icon-svg" viewBox="0 0 384 512"><path d="M32 0C14.3 0 0 14.3 0 32S14.3 64 32 64V75c0 42.4 16.9 83.1 46.9 113.1L146.7 256l-67.8 67.9C48.9 353.9 32 394.6 32 437v11c-17.7 0-32 14.3-32 32s14.3 32 32 32H352c17.7 0 32-14.3 32-32s-14.3-32-32-32V437c0-42.4-16.9-83.1-46.9-113.1L237.3 256l67.8-67.9c30-30 46.9-70.7 46.9-113.1V64c17.7 0 32-14.3 32-32s-14.3-32-32-32H32zM192 196.1L141.3 145.3C122.5 126.5 112 101.1 112 75V64H272V75c0 26.1-10.5 51.5-29.3 70.3L192 196.1zM242.7 366.7C261.5 385.5 272 410.9 272 437v11H112V437c0-26.1 10.5-51.5 29.3-70.3L192 315.9l50.7 50.8z"/></svg>
+                    <span>Día <span id="valDiasMain" style="font-weight: 700; font-size: 20px;">0</span> de tu viaje</span>
+                </div>
+
+                <div class="buttons-container">
+                    <button class="wolf-btn btn-blanco" onclick="registrarPunto('Blanco')">
+                        <!-- Icono Gigante de Fondo (Marca de Agua Recortada) -->
+                        <svg class="btn-watermark icon-svg-stroke" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="50" cy="50" r="46" stroke-width="3"/>
+                            <circle cx="50" cy="27" r="23" stroke-width="2.5"/>
+                            <circle cx="50" cy="73" r="23" stroke-width="2.5"/>
+                            <circle cx="30" cy="38.5" r="23" stroke-width="2.5"/>
+                            <circle cx="70" cy="38.5" r="23" stroke-width="2.5"/>
+                            <circle cx="30" cy="61.5" r="23" stroke-width="2.5"/>
+                            <circle cx="70" cy="61.5" r="23" stroke-width="2.5"/>
+                            <circle cx="50" cy="50" r="23" stroke-width="2.5"/>
+                        </svg>
+
+                        <div class="wolf-btn-content">
+                            <svg class="icon-svg-stroke" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="46" stroke-width="3"/>
+                                <circle cx="50" cy="27" r="23" stroke-width="2"/>
+                                <circle cx="50" cy="73" r="23" stroke-width="2"/>
+                                <circle cx="30" cy="38.5" r="23" stroke-width="2"/>
+                                <circle cx="70" cy="38.5" r="23" stroke-width="2"/>
+                                <circle cx="30" cy="61.5" r="23" stroke-width="2"/>
+                                <circle cx="70" cy="61.5" r="23" stroke-width="2"/>
+                                <circle cx="50" cy="50" r="23" stroke-width="2"/>
+                            </svg>
+                            Lobo Blanco
+                        </div>
+                    </button>
+
+                    <button class="wolf-btn btn-negro" onclick="registrarPunto('Negro')">
+                        <!-- Icono Gigante de Fondo (Marca de Agua Recortada) -->
+                        <svg class="btn-watermark icon-svg-stroke" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+                        </svg>
+
+                        <div class="wolf-btn-content">
+                            <svg class="icon-svg-stroke" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+                            </svg>
+                            Lobo Negro
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pestaña de Estadísticas -->
+            <div id="tab-dashboard" class="tab-content">
+                <div class="dashboard-header">
+                    <h2>El Balance</h2>
+                    <p style="color: #FFFFFF; font-size: 14px; margin-top: 5px; opacity: 0.9;">Tu voz interior registrada</p>
+                    <div id="daysCounter" style="margin-top: 15px; font-family: 'Cinzel', serif; color: var(--coral); font-size: 18px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                        <svg class="icon-svg" viewBox="0 0 384 512"><path d="M32 0C14.3 0 0 14.3 0 32S14.3 64 32 64V75c0 42.4 16.9 83.1 46.9 113.1L146.7 256l-67.8 67.9C48.9 353.9 32 394.6 32 437v11c-17.7 0-32 14.3-32 32s14.3 32 32 32H352c17.7 0 32-14.3 32-32s-14.3-32-32-32V437c0-42.4-16.9-83.1-46.9-113.1L237.3 256l67.8-67.9c30-30 46.9-70.7 46.9-113.1V64c17.7 0 32-14.3 32-32s-14.3-32-32-32H32zM192 196.1L141.3 145.3C122.5 126.5 112 101.1 112 75V64H272V75c0 26.1-10.5 51.5-29.3 70.3L192 196.1zM242.7 366.7C261.5 385.5 272 410.9 272 437v11H112V437c0-26.1 10.5-51.5 29.3-70.3L192 315.9l50.7 50.8z"/></svg>
+                        <span>Día <span id="valDias" style="font-weight: 700; font-size: 22px;">0</span> de tu viaje</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <div class="donut-chart" id="donutChart">
+                        <div class="donut-inner">
+                            <span class="donut-percentage" id="percentText">0%</span>
+                            <span class="donut-label">Luz</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-legend">
+                    <div class="legend-item">
+                        <div class="legend-label">
+                            <div class="color-dot dot-blanco"></div>
+                            <span>Lobo Blanco</span>
+                        </div>
+                        <span class="legend-value" id="valBlanco">0</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-label">
+                            <div class="color-dot dot-negro"></div>
+                            <span>Lobo Negro</span>
+                        </div>
+                        <span class="legend-value" id="valNegro">0</span>
+                    </div>
+                    <div class="legend-item" style="border-top: 1px dashed rgba(72, 202, 228, 0.3); margin-top: 10px; padding-top: 15px;">
+                        <div class="legend-label">
+                            <span style="color: var(--text-muted); font-weight: 700; font-size: 18px;">#</span>
+                            <span style="color: var(--text-muted);">Total Registros</span>
+                        </div>
+                        <span class="legend-value" id="valTotal" style="color: var(--text-muted);">0</span>
+                    </div>
+                </div>
+
+                <!-- Marca de Agua Geometría Sagrada: Vesica Piscis -->
+                <div class="vesica-piscis-container">
+                    <svg class="vesica-piscis-svg" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Dos Círculos Intersectados (Vesica Piscis) -->
+                        <circle cx="110" cy="90" r="70" fill="none" stroke="#FFFFFF" stroke-width="2" />
+                        <circle cx="190" cy="90" r="70" fill="none" stroke="#FFFFFF" stroke-width="2" />
+                        <!-- Almendra / Mandorla de Luz en la Intersección -->
+                        <path d="M 150,33.5 A 70 70 0 0 1 150,146.5 A 70 70 0 0 1 150,33.5 Z" fill="rgba(255, 255, 255, 0.08)" stroke="#FFFFFF" stroke-width="1.5" />
+                    </svg>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Navegación Inferior Fija e Inamovible -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('registro')">
+                <svg class="icon-svg" viewBox="0 0 320 512"><path d="M123.6 8.5C130.4 1 140 1 148 1c42 0 77 23.3 93.6 61.2L278.4 160H219c-14.3 0-26.6 9.8-30.2 23.7l-9.1 36.3h71.8c16.1 0 30 11.4 33.6 27.2s-2.1 31.9-14.5 41.3L101 475.2c-10 7.6-24 7.6-34 0s-15.6-21.3-13.6-33.8l20.4-129.4H36c-13.3 0-25.2-7.8-30.5-19.9s-2.6-26.2 6.8-35.6L123.6 8.5z"/></svg>
+                <span>Registro</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('dashboard')">
+                <svg class="icon-svg" viewBox="0 0 512 512"><path d="M448 256c0-106-86-192-192-192V256l135.8 135.8C425.4 358 448 309.8 448 256zM216 45.4C101.4 56.4 12 153.3 12 272c0 123.7 100.3 224 224 224c118.7 0 215.6-89.4 226.6-204H216V45.4zM256 0c141.4 0 256 114.6 256 256c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0z"/></svg>
+                <span>Estadísticas</span>
+            </button>
+        </nav>
+
+        <!-- Mensajes Toast -->
+        <div id="toast">
+            <svg class="icon-svg" viewBox="0 0 512 512" style="font-size: 16px;"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
+            <span id="toastMessage">Registrado correctamente</span>
+        </div>
+
+    </div>
+
+    <script>
+                
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const banner = document.getElementById('pwaNoticeBanner');
+            if (isStandalone || localStorage.getItem('pwaNoticeDismissed')) {
+                if (banner) banner.style.display = 'none';
+            }
+        });
+
+        function cerrarPwaNotice() {
+            const banner = document.getElementById('pwaNoticeBanner');
+            if (banner) banner.style.display = 'none';
+            localStorage.setItem('pwaNoticeDismissed', 'true');
+        }
+
+
+        let registros = JSON.parse(localStorage.getItem('alimentaTuLoboRegistros')) || [];
+        
+        const googleWebAppUrl = "https://script.google.com/macros/s/AKfycbwEOmJ1c_QkR41cwyMoPxcEZZJkuEkSx0aREx7PdEO4mY3w4Vkruq_mIjhV7LBUbd4/exec";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('fechaRegistro');
+            const today = new Date();
+            const localDate = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+            dateInput.value = localDate;
+            dateInput.max = localDate; 
+            
+            obtenerSaludoDelDia();
+            if (!isStandalone) { const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent); if (isIOS && !localStorage.getItem('iosBannerDismissed')) { const ib = document.getElementById('iosInstallBanner'); if (ib) { ib.style.display = 'flex'; ib.style.alignItems = 'center'; ib.style.justifyContent = 'space-between'; } } }
+            actualizarDashboard();
+            sincronizarDesdeNube();
+        });
+
+        function obtenerSaludoDelDia() {
+            const hoy = new Date();
+            const dia = hoy.getDate(); // 1 al 31
+            const mes = hoy.getMonth() + 1; // 1 al 12 (Febrero = 2)
+
+            const greetingTextEl = document.getElementById('greetingText');
+            const greetingIconEl = document.querySelector('.greeting-icon');
+
+            if (!greetingTextEl) return;
+
+            // Prioridad 1: Cumpleaños Sol (1 de Febrero)
+            if (mes === 2 && dia === 1) {
+                greetingTextEl.innerText = "¡Feliz cumpleaños Sol! 🎉";
+                greetingTextEl.classList.add('birthday');
+                if (greetingIconEl) greetingIconEl.innerText = "👑";
+                
+                setTimeout(() => {
+                    mostrarToast("🎂 ¡Hoy es un día muy especial! ¡Feliz Cumpleaños Sol! 🎉", false);
+                }, 800);
+                return;
+            }
+
+            // Prioridad 2: Día 23 de cada mes
+            if (dia === 23) {
+                greetingTextEl.innerText = "En el camino";
+                if (greetingIconEl) greetingIconEl.innerText = "🐾";
+                return;
+            }
+
+            // Prioridad 3: Días normales (Azar entre 4 saludos cotidianos)
+            const frasesCotidianas = [
+                "Buen día Sol!",
+                "Hola señor!",
+                "¿Cómo estás Reina?",
+                "Sonríe para que brille tu colmillo!"
+            ];
+
+            const indiceAleatorio = Math.floor(Math.random() * frasesCotidianas.length);
+            greetingTextEl.innerText = frasesCotidianas[indiceAleatorio];
+            if (greetingIconEl) greetingIconEl.innerText = "✨";
+        }
+
+        function sincronizarDesdeNube() {
+            fetch(googleWebAppUrl + "?action=getData", { redirect: 'follow' })
+                .then(response => {
+                    if (!response.ok) throw new Error("Respuesta de red no fue exitosa");
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && Array.isArray(data) && data.length > 0) {
+                        registros = data;
+                        localStorage.setItem('alimentaTuLoboRegistros', JSON.stringify(registros));
+                        actualizarDashboard();
+                    }
+                })
+                .catch(err => {
+                    console.warn("Aviso: Sincronización en segundo plano fallida, usando datos locales.", err);
+                });
+        }
+
+        function registrarPunto(loboSeleccionado) {
+            const fechaSeleccionada = document.getElementById('fechaRegistro').value;
+            
+            if (!fechaSeleccionada) {
+                mostrarToast("Por favor, selecciona una fecha válida.", true);
+                return;
+            }
+
+            registros.push({
+                lobo: loboSeleccionado,
+                fecha: fechaSeleccionada,
+                time: Date.now()
+            });
+
+            localStorage.setItem('alimentaTuLoboRegistros', JSON.stringify(registros));
+            mostrarToast(`Punto para el Lobo ${loboSeleccionado}`);
+            actualizarDashboard();
+            
+            fetch(googleWebAppUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({
+                    fecha: fechaSeleccionada,
+                    lobo: loboSeleccionado,
+                    timestamp: new Date().toISOString()
+                })
+            }).then(() => console.log("Enviado a Google Sheets"))
+              .catch(err => console.warn("Error al enviar", err));
+        }
+
+        function actualizarDashboard() {
+            const total = registros.length;
+            const cantBlanco = registros.filter(r => r.lobo === 'Blanco').length;
+            const cantNegro = registros.filter(r => r.lobo === 'Negro').length;
+            
+            let diasViaje = 0;
+            if (total > 0) {
+                const fechas = registros.map(r => {
+                    const partes = r.fecha.split('-');
+                    return new Date(partes[0], partes[1] - 1, partes[2]).getTime();
+                });
+                const fechaMasAntigua = new Date(Math.min(...fechas));
+                
+                const hoy = new Date();
+                hoy.setHours(0,0,0,0);
+                fechaMasAntigua.setHours(0,0,0,0);
+
+                const diferenciaMs = hoy.getTime() - fechaMasAntigua.getTime();
+                diasViaje = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24)) + 1; 
+            }
+
+            let porcentajeBlanco = 0;
+            if (total > 0) {
+                porcentajeBlanco = Math.round((cantBlanco / total) * 100);
+            }
+
+            document.getElementById('percentText').innerText = porcentajeBlanco + '%';
+            document.getElementById('valBlanco').innerText = cantBlanco;
+            document.getElementById('valNegro').innerText = cantNegro;
+            document.getElementById('valTotal').innerText = total;
+            document.getElementById('valDias').innerText = diasViaje;
+            if (document.getElementById('valDiasMain')) {
+                document.getElementById('valDiasMain').innerText = diasViaje;
+            }
+
+            const donut = document.getElementById('donutChart');
+            donut.style.background = `conic-gradient(#2A9D8F 0% ${porcentajeBlanco}%, #E76F51 ${porcentajeBlanco}% 100%)`;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+
+            if (tabName === 'registro') {
+                document.getElementById('tab-registro').classList.add('active');
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if (tabName === 'dashboard') {
+                actualizarDashboard(); 
+                document.getElementById('tab-dashboard').classList.add('active');
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+            }
+        }
+
+        function mostrarToast(mensaje, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            
+            toastMsg.innerText = mensaje;
+            
+            if (isError) {
+                toast.style.background = "#E76F51";
+                toast.style.color = "#fff";
+            } else {
+                toast.style.background = "rgba(42, 157, 143, 0.95)";
+                toast.style.color = "#fff";
+            }
+
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // ==========================================
+        // REGISTRO Y LÓGICA DE INSTALACIÓN PWA
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrado:', reg.scope))
+                    .catch(err => console.warn('Error Service Worker:', err));
+            });
+        }
+
+        let deferredPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            const banner = document.getElementById('pwaNoticeBanner');
+            const btn = document.getElementById('pwaInstallBtn');
+            const bannerText = document.getElementById('pwaBannerText');
+
+            if (banner && btn) {
+                bannerText.innerHTML = '📲 <strong>Instalar App:</strong> Guarda Alimenta Tu Lobo en tu pantalla de inicio';
+                btn.style.display = 'inline-block';
+                banner.style.display = 'flex';
+            }
+        });
+
+        function instalarPwa() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('PWA Instalada');
+                        mostrarToast('¡App instalada con éxito!');
+                    }
+                    deferredPrompt = null;
+                    cerrarPwaNotice();
+                });
+            }
+        }
+
+        function cerrarPwaNotice() {
+            const banner = document.getElementById('pwaNoticeBanner');
+            if (banner) banner.style.display = 'none';
+            localStorage.setItem('pwaNoticeClosed', 'true');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            const banner = document.getElementById('pwaNoticeBanner');
+            const bannerText = document.getElementById('pwaBannerText');
+
+            if (!isStandalone) {
+                if (isIOS) {
+                    if (banner && bannerText) {
+                        bannerText.innerHTML = '📲 <strong>Guardar App:</strong> Toca Compartir ⎋ y luego <strong>"Agregar a Inicio ➕"</strong>';
+                        banner.style.display = 'flex';
+                    }
+                } else if (!localStorage.getItem('pwaNoticeClosed')) {
+                    if (banner) banner.style.display = 'flex';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
