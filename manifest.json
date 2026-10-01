@@ -1,0 +1,37 @@
+{
+  "name": "Alimenta Tu Lobo",
+  "short_name": "AlimentaTuLobo",
+  "description": "App personal de registro y balance entre el Lobo Blanco y el Lobo Negro",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#072133",
+  "theme_color": "#072133",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://archdetech.github.io/alimenta-tu-lobo/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://archdetech.github.io/alimenta-tu-lobo/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
